@@ -40,6 +40,7 @@
   let sortOrder = SORT_ORDER.ASC;
 
   let pageNo = 0;
+  let totalPages = 0;
 
   // ** Table Configuration **
   const defaultConfig = {
@@ -202,6 +203,7 @@
     } catch (err) {
       console.error(err);
     }
+    totalPages = Math.ceil(countries.length / defaultConfig.dataPerPage);
     console.table(countries);
     const sortedCountries = sortData(countries);
     return sortedCountries;
@@ -265,6 +267,11 @@
     document.getElementById("table").appendChild(newTableBody);
   }
 
+  function updatePageNumber(no) {
+    pageNo = no;
+    updateTableBody(data);
+  }
+
   function addPaginationControl() {
     const oldPaginationContainer = document.getElementById(
       "paginationActionContainer"
@@ -281,36 +288,79 @@
       `Showing max ${defaultConfig.dataPerPage} rows per page.`,
       { className: "data-per-page" }
     );
+
+    const buttonFirstPage = createElement("button", "<<", {
+      id: "buttonFirstPage",
+      onclick: () => {
+        updatePageNumber(0);
+      },
+      disabled: pageNo === 0
+    });
+    if (pageNo === 0) buttonFirstPage.classList.add("cursor-not-allowed");
+
     const buttonPrev = createElement("button", "<", {
       id: "buttonPrev",
       onclick: () => {
-        if (pageNo > 0) pageNo -= 1;
-        updateTableBody(data);
+        if (pageNo > 0) updatePageNumber(pageNo - 1);
       },
       disabled: pageNo === 0
     });
     if (pageNo === 0) buttonPrev.classList.add("cursor-not-allowed");
+
+    const pageJumpButtonContainer = document.createElement("div");
+    pageJumpButtonContainer.id = "pageJumpButtonContainer";
+    {
+      let startIndex = pageNo > 1 ? pageNo - 2 : 0;
+      for (
+        let i = startIndex, j = 0;
+        j < 5 && startIndex < totalPages;
+        j++, startIndex++
+      ) {
+        const buttonPageNode = createElement("button", startIndex + 1, {
+          onclick: (index => () => {
+            updatePageNumber(index);
+          })(startIndex)
+        });
+        buttonPageNode.classList.add("page-button");
+        if (startIndex === pageNo)
+          buttonPageNode.classList.add("page-button--active");
+        pageJumpButtonContainer.appendChild(buttonPageNode);
+      }
+    }
+
     const textPages = createElement(
       "span",
-      `page. ${pageNo + 1} of ${Math.ceil(
-        data.length / defaultConfig.dataPerPage
-      )}`,
+      `page. ${pageNo + 1} of ${Math.ceil(totalPages)}`,
       { className: "text-pages" }
     );
+
     const buttonNext = createElement("button", ">", {
       id: "buttonNext",
       onclick: () => {
-        if (pageNo + 1 < data.length / defaultConfig.dataPerPage) pageNo += 1;
-        updateTableBody(data);
+        if (pageNo + 1 < totalPages) updatePageNumber(pageNo + 1);
       },
-      disabled: pageNo + 1 === defaultConfig.dataPerPage
+      disabled: pageNo === totalPages - 1
     });
     if (pageNo + 1 === defaultConfig.dataPerPage)
       buttonNext.classList.add("cursor-not-allowed");
+
+    const buttonLastPage = createElement("button", ">>", {
+      id: "buttonLastPage",
+      onclick: () => {
+        updatePageNumber(totalPages - 1);
+      },
+      disabled: pageNo === totalPages - 1
+    });
+    if (pageNo + 1 === defaultConfig.dataPerPage)
+      buttonLastPage.classList.add("cursor-not-allowed");
+
     newElDiv.appendChild(textDataPerPage);
+    newElDiv.appendChild(buttonFirstPage);
     newElDiv.appendChild(buttonPrev);
     newElDiv.appendChild(textPages);
+    newElDiv.appendChild(pageJumpButtonContainer);
     newElDiv.appendChild(buttonNext);
+    newElDiv.appendChild(buttonLastPage);
     rootContainer.appendChild(newElDiv);
   }
 })();

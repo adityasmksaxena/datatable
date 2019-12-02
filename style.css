@@ -101,13 +101,17 @@ tbody {
 }
 
 #buttonPrev,
-#buttonNext {
+#buttonNext,
+#buttonLastPage,
+#buttonFirstPage {
   height: 24px;
   width: 24px;
   cursor: pointer;
 }
 #buttonPrev.cursor-not-allowed,
-#buttonNext.cursor-not-allowed {
+#buttonNext.cursor-not-allowed,
+#buttonLastPage.cursor-not-allowed
+#buttonFirstPage.cursor-not-allowed {
   cursor: not-allowed;
 }
 
@@ -147,4 +151,17 @@ tbody {
 
 .sorted-ascend:after {
   content: "asc";
+}
+
+#pageJumpButtonContainer {
+  display: inline-block;
+}
+.page-button {
+  height: 24px;
+  width: 24px;
+  cursor: pointer;
+}
+
+.page-button--active {
+  font-weight: 900;
 }
