@@ -1,4 +1,4 @@
-(function() {
+window.onload = function() {
   const HEADERS = {
     BLANK: "",
     NAME: "name",
@@ -313,6 +313,14 @@
       { className: "data-per-page" }
     );
 
+    const textPages = createElement(
+      "span",
+      `page. ${pageNo + 1} of ${Math.ceil(totalPages)}`,
+      { className: "text-pages" }
+    );
+
+    const buttonFragment = document.createDocumentFragment();
+
     const buttonFirstPage = createElement("button", "<<", {
       id: "buttonFirstPage",
       onclick: () => {
@@ -321,6 +329,7 @@
       disabled: pageNo === 0
     });
     if (pageNo === 0) buttonFirstPage.classList.add("cursor-not-allowed");
+    buttonFragment.appendChild(buttonFirstPage);
 
     const buttonPrev = createElement("button", "<", {
       id: "buttonPrev",
@@ -330,9 +339,8 @@
       disabled: pageNo === 0
     });
     if (pageNo === 0) buttonPrev.classList.add("cursor-not-allowed");
+    buttonFragment.appendChild(buttonPrev);
 
-    const pageJumpButtonContainer = document.createElement("div");
-    pageJumpButtonContainer.id = "pageJumpButtonContainer";
     {
       let startIndex = pageNo > 1 ? pageNo - 2 : 0;
       for (
@@ -348,15 +356,9 @@
         buttonPageNode.classList.add("page-button");
         if (startIndex === pageNo)
           buttonPageNode.classList.add("page-button--active");
-        pageJumpButtonContainer.appendChild(buttonPageNode);
+        buttonFragment.appendChild(buttonPageNode);
       }
     }
-
-    const textPages = createElement(
-      "span",
-      `page. ${pageNo + 1} of ${Math.ceil(totalPages)}`,
-      { className: "text-pages" }
-    );
 
     const buttonNext = createElement("button", ">", {
       id: "buttonNext",
@@ -367,6 +369,7 @@
     });
     if (pageNo + 1 === dataPerPage)
       buttonNext.classList.add("cursor-not-allowed");
+      buttonFragment.appendChild(buttonNext);
 
     const buttonLastPage = createElement("button", ">>", {
       id: "buttonLastPage",
@@ -377,14 +380,15 @@
     });
     if (pageNo + 1 === dataPerPage)
       buttonLastPage.classList.add("cursor-not-allowed");
+    buttonFragment.appendChild(buttonLastPage);
+
+    const pageJumpButtonContainer = document.createElement("div");
+    pageJumpButtonContainer.id = "pageJumpButtonContainer";
+    pageJumpButtonContainer.appendChild(buttonFragment)
 
     newElDiv.appendChild(textDataPerPage);
-    newElDiv.appendChild(buttonFirstPage);
-    newElDiv.appendChild(buttonPrev);
     newElDiv.appendChild(textPages);
     newElDiv.appendChild(pageJumpButtonContainer);
-    newElDiv.appendChild(buttonNext);
-    newElDiv.appendChild(buttonLastPage);
     rootContainer.appendChild(newElDiv);
   }
-})();
+};
