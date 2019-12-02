@@ -34,14 +34,6 @@
     DESC: "descend"
   };
 
-  // IIFE SCOPED VARIABLES
-  let data = null;
-  let sortKey = DATA_KEYS.NAME;
-  let sortOrder = SORT_ORDER.ASC;
-
-  let pageNo = 0;
-  let totalPages = 0;
-
   // ** Table Configuration **
   const defaultConfig = {
     dataUrl: "https://restcountries.eu/rest/v2/all",
@@ -61,9 +53,19 @@
       DATA_KEYS.SUBREGION,
       DATA_KEYS.POPULATION
     ],
+    dataPerPageOptions: [5, 10, 20, 50, 100],
     dataPerPage: 20
   };
   // ** Table Configuration Ends **
+
+  // IIFE SCOPED VARIABLES
+  let data = null;
+  let sortKey = DATA_KEYS.NAME;
+  let sortOrder = SORT_ORDER.ASC;
+
+  let pageNo = 0;
+  let totalPages = 0;
+  let dataPerPage = defaultConfig.dataPerPage;
 
   // Initial Rendering and Data Fetching
   init();
@@ -115,6 +117,29 @@
     const config = defaultConfig;
 
     const rootContainer = document.getElementById("root");
+    const headerDiv = document.createElement("div");
+    headerDiv.id = "headerDiv";
+    const options = config.dataPerPageOptions.reduce(
+      (acc, val) =>
+        acc +
+        `<option value="${val}"${
+          dataPerPage === val ? " selected" : ""
+        }>${val}</option>`,
+      ""
+    );
+    headerDiv.innerHTML = `
+      <label for="dataPerPage">Data per page : </label>
+      <select id="dataPerPage">
+        ${options}
+      </select>
+    `;
+    headerDiv.onchange = event => {
+      dataPerPage = +event.target.value;
+      totalPages = Math.ceil(data.length / dataPerPage);
+      updateTableBody(data);
+    };
+    rootContainer.appendChild(headerDiv);
+
     const newElTable = document.createElement("table");
     newElTable.className = "table";
     newElTable.id = "table";
@@ -154,7 +179,6 @@
     });
     newElTr.appendChild(theadTrCellsFragment);
     newElThead.appendChild(newElTr);
-
     return newElThead;
   }
 
@@ -203,7 +227,7 @@
     } catch (err) {
       console.error(err);
     }
-    totalPages = Math.ceil(countries.length / defaultConfig.dataPerPage);
+    totalPages = Math.ceil(countries.length / dataPerPage);
     console.table(countries);
     const sortedCountries = sortData(countries);
     return sortedCountries;
@@ -237,11 +261,11 @@
       newElTbody.appendChild(row);
     } else {
       const rows = document.createDocumentFragment();
-      if (defaultConfig.dataPerPage) {
-        const startIndex = pageNo * defaultConfig.dataPerPage;
+      if (dataPerPage) {
+        const startIndex = pageNo * dataPerPage;
         for (
           let i = startIndex;
-          i < data.length && i < startIndex + defaultConfig.dataPerPage;
+          i < data.length && i < startIndex + dataPerPage;
           i++
         ) {
           const country = data[i];
@@ -285,7 +309,7 @@
 
     const textDataPerPage = createElement(
       "span",
-      `Showing max ${defaultConfig.dataPerPage} rows per page.`,
+      `Showing max ${dataPerPage} rows per page.`,
       { className: "data-per-page" }
     );
 
@@ -341,7 +365,7 @@
       },
       disabled: pageNo === totalPages - 1
     });
-    if (pageNo + 1 === defaultConfig.dataPerPage)
+    if (pageNo + 1 === dataPerPage)
       buttonNext.classList.add("cursor-not-allowed");
 
     const buttonLastPage = createElement("button", ">>", {
@@ -351,7 +375,7 @@
       },
       disabled: pageNo === totalPages - 1
     });
-    if (pageNo + 1 === defaultConfig.dataPerPage)
+    if (pageNo + 1 === dataPerPage)
       buttonLastPage.classList.add("cursor-not-allowed");
 
     newElDiv.appendChild(textDataPerPage);
