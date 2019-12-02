@@ -36,8 +36,8 @@
 
   // IIFE SCOPED VARIABLES
   let data = null;
-  let sortKey = null;
-  let sortOrder = null;
+  let sortKey = DATA_KEYS.NAME;
+  let sortOrder = SORT_ORDER.ASC;
 
   let pageNo = 0;
 
@@ -68,16 +68,8 @@
   init();
   addSortHandlers();
 
-  function handleSort(key) {
-    if (sortKey === key) {
-      sortOrder =
-        sortOrder === SORT_ORDER.ASC ? SORT_ORDER.DESC : SORT_ORDER.ASC;
-    } else {
-      sortKey = key;
-      sortOrder = SORT_ORDER.ASC;
-    }
-
-    data = data.sort((country1, country2) => {
+  function sortData(data) {
+    const sortedData = data.sort((country1, country2) => {
       const value1 = country1[sortKey];
       const value2 = country2[sortKey];
 
@@ -89,12 +81,24 @@
           ? value1.localeCompare(value2)
           : value2.localeCompare(value1);
       } else {
-        // TODO: check for date and boolean (In the rendered data only above cases would arise)
+        // TODO: not considering
+        return 0;
       }
     });
+    return sortedData;
+  }
+
+  function handleSort(key) {
+    if (sortKey === key) {
+      sortOrder =
+        sortOrder === SORT_ORDER.ASC ? SORT_ORDER.DESC : SORT_ORDER.ASC;
+    } else {
+      sortKey = key;
+      sortOrder = SORT_ORDER.ASC;
+    }
+    data = sortData(data);
     updateTableBody(data);
     updateTableHeader();
-    addSortHandlers();
   }
 
   function addSortHandlers() {
@@ -133,10 +137,9 @@
       if (headerDataKeyMapper[header] === sortKey) {
         newElTh = document.createElement("th");
         newElTh.id = headerDataKeyMapper[header];
-        const newElDiv = createElement(
-          "div",
-          `${header} <> (selected-${sortOrder})`
-        );
+        const newElDiv = createElement("div", header.toUpperCase(), {
+          className: `sorted-${sortOrder}`
+        });
         newElTh.appendChild(newElDiv);
       } else {
         newElTh = createElement("th", header, {
@@ -160,6 +163,7 @@
     const newTableHeader = getTableHeader();
     const elTable = document.getElementById("table");
     elTable.insertBefore(newTableHeader, elTable.firstChild);
+    addSortHandlers();
   }
 
   function isObject(obj) {
@@ -199,7 +203,8 @@
       console.error(err);
     }
     console.table(countries);
-    return countries;
+    const sortedCountries = sortData(countries);
+    return sortedCountries;
   }
 
   function getRowCells(index, country) {
@@ -258,13 +263,6 @@
     oldTableBody.remove();
     const newTableBody = getTableBody(data, numberOfColumns);
     document.getElementById("table").appendChild(newTableBody);
-
-    [...document.querySelectorAll("#tableHeader tr th")].forEach(el => {
-      if (defaultConfig.sortable.includes(headerDataKeyMapper[el.id])) {
-        el.classList.add("sortable");
-        el.addEventListener("click", event => handleSort(el.id, event));
-      }
-    });
   }
 
   function addPaginationControl() {

@@ -4,7 +4,6 @@
   margin: 0;
   padding: 0;
   box-sizing: inherit;
-  text-align: ;
 }
 html {
   font-size: 62.5%;
@@ -19,7 +18,7 @@ body {
 
 #root {
   min-height: 100vh;
-  min-width: 520px;
+  min-width: 567px;
   width: 100%;
   padding: 2rem;
   background-color: aqua;
@@ -43,6 +42,11 @@ caption {
 }
 
 thead > tr > th {
+  position: relative;
+}
+
+thead > tr > th,
+thead > tr > th > div {
   text-align: left;
   text-transform: capitalize;
 }
@@ -115,4 +119,32 @@ tbody {
 .text-pages {
   font-size: 1.6rem;
   margin: 0 8px;
+}
+
+.sorted-ascend,
+.sorted-descend {
+  padding-right: 32px;
+  word-wrap: break-word;
+}
+
+.sorted-ascend:after,
+.sorted-descend:after {
+  content: "";
+  height: 16;
+  width: 16;
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translate(-0%, -50%);
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  opacity: 1;
+}
+
+.sorted-descend:after {
+  content: "desc";
+}
+
+.sorted-ascend:after {
+  content: "asc";
 }
