@@ -136,7 +136,7 @@ window.onload = function() {
     headerDiv.onchange = event => {
       dataPerPage = +event.target.value;
       totalPages = Math.ceil(data.length / dataPerPage);
-      if (totalPages >= pageNo) pageNo = totalPages - 1;
+      if (totalPages <= pageNo) pageNo = totalPages - 1;
       updateTableBody(data);
     };
     rootContainer.appendChild(headerDiv);
